@@ -131,6 +131,48 @@ describe('createParallelWorker', () => {
     await pool.destroy();
   });
 
+  it('should yield results in the order of the items', async () => {
+    // Later chunks complete first
+    const generator = {
+      name: 'ordered',
+      processChunk: async input => {
+        await new Promise(resolve => setTimeout(resolve, (3 - input[0]) * 20));
+
+        return input;
+      },
+    };
+
+    const worker = createParallelWorker('ordered', generator, undefined, {
+      threads: 1,
+      chunkSize: 1,
+    });
+
+    const chunks = await collectChunks(worker.stream([0, 1, 2], {}));
+
+    deepStrictEqual(chunks, [[0], [1], [2]]);
+  });
+
+  it('should give single-threaded chunks their own copy of the items', async () => {
+    const generator = {
+      name: 'editing',
+      processChunk: async input => {
+        input[0].edited = true;
+
+        return input;
+      },
+    };
+
+    const items = [{}, {}, {}];
+    const worker = createParallelWorker('editing', generator, undefined, {
+      threads: 1,
+      chunkSize: 1,
+    });
+
+    await collectChunks(worker.stream(items, {}));
+
+    deepStrictEqual(items, [{}, {}, {}]);
+  });
+
   it('should work with single thread and items', async () => {
     const pool = createWorkerPool(2);
     const worker = createParallelWorker('metadata', metadataGenerator, pool, {

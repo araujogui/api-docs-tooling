@@ -34,7 +34,8 @@ export async function generate(input) {
   // for generating the `tableOfContents` with the `tableOfContents.parseNavigationNode` parser
   const sideNavigationFromValues = entries.map(entry => ({
     api: entry.api,
-    heading: { data: { depth: 1, name: entry.section } },
+    // `tableOfContents` reads the depth off the heading, not its data
+    heading: { depth: 1, data: { name: entry.section } },
   }));
 
   // Generates the global Table of Contents (Sidebar Navigation)

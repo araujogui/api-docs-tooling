@@ -1,4 +1,4 @@
-import { strictEqual } from 'node:assert';
+import { deepStrictEqual, strictEqual } from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { u } from 'unist-builder';
@@ -183,6 +183,25 @@ describe('Mandoc Conversion', () => {
         convertEnvVarToMandoc(mockElement),
         `.It Ev SPECIAL_VAR Ar special value!\nDescription of special environment variable.\n.\n`
       );
+    });
+  });
+
+  describe('Shared entries', () => {
+    it('leaves the entries it converts untouched', () => {
+      const element = {
+        heading: { data: { text: '`-a`' } },
+        content: u('root', [
+          u('heading', { depth: 3 }, [textNode('-a')]),
+          u('paragraph', [textNode('Description.')]),
+        ]),
+      };
+
+      const before = structuredClone(element);
+
+      convertOptionToMandoc(element);
+      convertEnvVarToMandoc(element);
+
+      deepStrictEqual(element, before);
     });
   });
 });

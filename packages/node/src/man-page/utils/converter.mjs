@@ -76,6 +76,18 @@ export function convertNodeToMandoc(node, isListItem = false) {
 }
 
 /**
+ * An entry's content without its heading, as a copy: the entries are shared
+ * with the other generators of the run, so they must not be edited.
+ *
+ * @param {import('mdast').Root} content
+ * @returns {import('mdast').Root}
+ */
+const withoutHeading = content => ({
+  ...content,
+  children: content.children.slice(1),
+});
+
+/**
  * Converts a command-line flag to its Mandoc representation.
  * This function splits the flag into its name and optional value (if present),
  * formatting them appropriately for Mandoc manual pages.
@@ -138,11 +150,8 @@ export function convertOptionToMandoc(element) {
     .join(' , ')
     .trim();
 
-  // Remove the header itself.
-  element.content.children.shift();
-
   // Return the formatted flags and content, separated by Mandoc markers.
-  return `.It ${formattedFlags}\n${convertNodeToMandoc(element.content).trim()}\n.\n`;
+  return `.It ${formattedFlags}\n${convertNodeToMandoc(withoutHeading(element.content)).trim()}\n.\n`;
 }
 
 /**
@@ -162,9 +171,6 @@ export function convertEnvVarToMandoc(element) {
   // Format the variable value if present.
   const formattedValue = varValue ? ` Ar ${varValue}` : '';
 
-  // Remove the header itself.
-  element.content.children.shift();
-
   // Return the formatted environment variable and content, using Mandoc's .It (List item) and .Ev (Env Var) macros.
-  return `.It Ev ${varName}${formattedValue}\n${convertNodeToMandoc(element.content)}\n.\n`;
+  return `.It Ev ${varName}${formattedValue}\n${convertNodeToMandoc(withoutHeading(element.content))}\n.\n`;
 }

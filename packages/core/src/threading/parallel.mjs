@@ -77,12 +77,13 @@ export default function createParallelWorker(
 
   return {
     /**
-     * Processes items in parallel, yielding results as chunks complete.
+     * Processes items in parallel, yielding each chunk's results in the order
+     * of the items.
      *
      * @template T
      * @param {T[]} items - Items to process
      * @param {object} extra - Extra options
-     * @yields {R[]} Chunk results as they complete
+     * @yields {R[]} Chunk results, in the order of the items
      */
     async *stream(items, extra) {
       if (items.length === 0) {
@@ -98,38 +99,31 @@ export default function createParallelWorker(
 
       const runInOneGo = threads <= 1 || items.length <= 2;
 
-      // Submit all tasks to Piscina - each promise resolves to itself for removal
-      const pending = new Set(
-        chunks.map(indices => {
-          if (runInOneGo) {
-            const promise = generator
-              .processChunk(items, indices, extra)
-              .then(result => ({ promise, result }));
-
-            return promise;
-          }
-
-          const promise = pool
-            .run(
+      // Submit all tasks at once, so they all run in parallel
+      const tasks = chunks.map(indices =>
+        runInOneGo
+          ? // Like a worker, the chunk works on its own copy of its items, as
+            // generators may edit them while other generators share them
+            generator.processChunk(
+              structuredClone(indices.map(i => items[i])),
+              indices.map((_, i) => i),
+              extra
+            )
+          : pool.run(
               createTask(items, indices, extra, configuration, specifier, name)
             )
-            .then(result => ({ promise, result }));
-
-          return promise;
-        })
       );
 
-      // Yield results as they complete (true parallel collection)
-      let completed = 0;
+      // A chunk that fails before the ones ahead of it is reported when its
+      // turn comes, not as an unhandled rejection
+      tasks.forEach(task => task.catch(() => {}));
 
-      while (pending.size > 0) {
-        const { promise, result } = await Promise.race(pending);
+      // Yield the results in the order of the items, whatever order the chunks
+      // complete in, so the output doesn't change from run to run
+      for (const [index, task] of tasks.entries()) {
+        const result = await task;
 
-        pending.delete(promise);
-
-        completed++;
-
-        parallelLogger.debug(`Chunk ${completed}/${chunks.length} completed`, {
+        parallelLogger.debug(`Chunk ${index + 1}/${chunks.length} completed`, {
           generator: name,
         });
 

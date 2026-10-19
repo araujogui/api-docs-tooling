@@ -9,17 +9,18 @@ declare global {
 
   /**
    * ParallelWorker interface for distributing work across Node.js worker threads.
-   * Streams results as chunks complete, enabling pipeline parallelism.
+   * Streams results in the order of the items, enabling pipeline parallelism.
    */
   export interface ParallelWorker {
     /**
-     * Processes items in parallel across worker threads and yields results
-     * as each chunk completes. Enables downstream processing to begin
-     * while upstream chunks are still being processed.
+     * Processes items in parallel across worker threads and yields each
+     * chunk's results once it and the chunks before it complete, so results
+     * come in the order of the items. Enables downstream processing to begin
+     * while later chunks are still being processed.
      *
      * @param items - Items to process (determines chunk distribution)
      * @param opts - Additional options to pass to workers
-     * @yields Each chunk's results as they complete
+     * @yields Each chunk's results, in the order of the items
      */
     stream<T, R>(
       items: T[],

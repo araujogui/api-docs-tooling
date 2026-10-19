@@ -89,6 +89,35 @@ Options:
   -h, --help                   display help for command
 ```
 
+### Go CLI
+
+`doc-kit` is also a Go binary, which runs most generators natively: `ast`,
+`ast-js`, `metadata`, `json`, `json-all`, `json-simple`, `legacy-html`,
+`legacy-html-all`, `legacy-json`, `legacy-json-all`, `man-page`,
+`addon-verify` and `api-links`. It takes the same flags as the JavaScript CLI.
+
+```sh
+go build -o doc-kit ./cmd/doc-kit
+./doc-kit generate -t legacy-html -t json -i "path/to/node/doc/api/*.md" -o out
+```
+
+The React generators (`html`, `orama-db`, `llms-txt`, `llms-txt-full`,
+`sitemap`, `section-pages`) and `@doc-kit/typedoc` stay in JavaScript. When a
+run requests them, the Go CLI hands those targets to the JavaScript CLI
+(`packages/cli/bin/cli.mjs`, found from the working directory, or given with
+`--js-cli` or `DOC_KIT_JS_CLI`), so `pnpm install` is still needed for them.
+
+Differences from the JavaScript generators:
+
+- Code is highlighted with [chroma](https://github.com/alecthomas/chroma)
+  rather than Shiki: the markup and themes are the same, the tokens differ.
+- Custom Markdown plugins and custom generator modules aren't supported.
+- MDX files are parsed as plain Markdown.
+- JSON and YAML configuration files are read directly; JavaScript ones are
+  evaluated with Node.js.
+
+Run the Go tests with `go test ./...`.
+
 ## Examples
 
 ### Legacy

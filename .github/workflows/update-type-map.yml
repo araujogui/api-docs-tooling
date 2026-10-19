@@ -23,13 +23,22 @@ jobs:
             api.github.com:443
             objects.githubusercontent.com:443
             release-assets.githubusercontent.com:443
+            go.dev:443
+            dl.google.com:443
+            proxy.golang.org:443
+            storage.googleapis.com:443
 
       - name: Git Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - run: node scripts/update-type-map.mjs
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - run: go run ./cmd/update-type-map
 
       - name: Open pull request
         uses: gr2m/create-or-update-pull-request-action@b65137ca591da0b9f43bad7b24df13050ea45d1b # v1.10.1

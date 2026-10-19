@@ -67,9 +67,11 @@ export async function generate(input) {
 
   const template = await readFile(config.templatePath, 'utf-8');
 
+  // Replaced with functions, so `$&` and the like in the options aren't read
+  // as replacement patterns
   const filledTemplate = template
-    .replace('__OPTIONS__', output.options)
-    .replace('__ENVIRONMENT__', output.env);
+    .replace('__OPTIONS__', () => output.options)
+    .replace('__ENVIRONMENT__', () => output.env);
 
   if (config.output) {
     await writeFile(join(config.output, config.fileName), filledTemplate);

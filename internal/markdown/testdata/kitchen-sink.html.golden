@@ -1,0 +1,63 @@
+<h1>Kitchen sink</h1>
+<p>Text with <em>emphasis</em>, <strong>strong</strong>, <code>code</code>, <del>strike</del> and a <a href="https://example.com" title="Title">link</a>.
+A soft break, and a hard one<br>
+here. Entities &#x26; escapes * and © and a <code class="type">string | Buffer</code> annotation.</p>
+<blockquote>
+<p>Stability: 2 - Stable</p>
+<p>A second paragraph in the quote.</p>
+</blockquote>
+<ul>
+<li>A tight</li>
+<li>list with <code>items</code>
+<ul>
+<li>and nesting</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>
+<p>A loose</p>
+</li>
+<li>
+<p>ordered list</p>
+</li>
+</ol>
+<ul class="contains-task-list">
+<li class="task-list-item"><input type="checkbox" disabled> a task</li>
+<li class="task-list-item"><input type="checkbox" checked disabled> done</li>
+</ul>
+<pre><code class="language-js">const a = 1;
+</code></pre>
+<pre><code>indented code
+</code></pre>
+<!-- YAML
+added: v1.0.0
+-->
+<div>raw html</div>
+<table>
+<thead>
+<tr>
+<th align="left">Left</th>
+<th align="center">Center</th>
+<th align="right">Right</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a</td>
+<td align="center"><code>b|c</code></td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>Reference <a href="https://example.com/ref">style</a> links and a footnote<sup><a href="#user-content-fn-note" id="user-content-fnref-note" data-footnote-ref aria-describedby="footnote-label">1</a></sup> and <a href="http://www.example.com">www.example.com</a> and an
+email <a href="mailto:someone@example.com">someone@example.com</a> but not pkg@1.2.3.</p>
+<p><img src="img.png" alt="An image"> and <img src="https://example.com/img.png" alt="ref image"></p>
+<hr>
+<section data-footnotes class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-note">
+<p>The footnote text. <a href="#user-content-fnref-note" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>

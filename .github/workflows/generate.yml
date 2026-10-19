@@ -132,6 +132,14 @@ jobs:
             .
           path: node
 
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Build doc-kit
+        run: go build -o doc-kit ./cmd/doc-kit
+
       - name: Create output directory
         run: mkdir -p out/${{ matrix.target }}
 
@@ -140,7 +148,7 @@ jobs:
           /usr/bin/time \
             --output out/benchmark.json \
             --format '{"elapsedSeconds": %e, "userCpuSeconds": %U, "systemCpuSeconds": %S, "maxRssKiB": %M}' \
-            node packages/cli/bin/cli.mjs generate \
+            ./doc-kit generate \
             -t ${{ matrix.target }} \
             -i "${{ matrix.input }}" \
             -o out \
@@ -163,7 +171,7 @@ jobs:
         env:
           GENERATOR: ${{ matrix.target }}
         run: |
-          node scripts/comparators/${{ matrix.compare }}.mjs > out/comparison.txt
+          go run ./cmd/compare ${{ matrix.compare }} > out/comparison.txt
 
       - name: Upload ${{ matrix.target }} artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
